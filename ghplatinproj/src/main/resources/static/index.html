@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Java Program Web Interface</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #output { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Enter Input for Java Program</h1>
+    <form id="seek" name="seek" method="GET" action="index.php">
+        <label for="met">Meter Type: </label>
+        <select id="met" name="met">
+           <option value="Dactylic Hexameter">Dactylic Hexameter</option>
+           <option value="Elegiac Couplet Line 1">Elegiac Couplet Line 1</option>
+           <option value="Elegiac Couplet Line 2">Elegiac Couplet Line 2</option>
+        </select>
+        <label for="text">Use Latin: </label>
+        <input type="text" id="userInput" name="userInput">
+        <button onclick="sendInput()">Submit</button>
+        <div id="output"></div>
+    </form>
+    <div id="container">
+
+
+        <p>This website puts the Latin inputted above into the specified meter (if possible). It will either return said Latin in all possible word orders that fit the meter or will return general guidance on how to improve the odds that the Latin will be able to be put in meter. This includes suggestions such as more or less syllables are needed.</p>
+        
+        <p>To get proper results some formatting of the input is required. This helped to make the process of creating this program more doable, and I thank you for your understanding. The formatting resquirements are as follows: 
+
+        <ul>
+            <li>If a phrase should be kept together (i.e. a prepositional phrase), please enter it as one word. (e.g. in altum => inaltum)</li>
+            <li>Vowels that are long by nature (and not by position or a diphthong) must be marked as such by a - after the vowel. (e.g. primus => pri-mus)</li>
+            <li>To find long marks, I suggest <a href="https://orbilius.org/glossa/"> Orbilius. </a></li>
+            <li>You must also select your desired meter type from the drop down above. For a meter with distinct sets of lines (e.g. Elegiac Couplet), you must select the line as well. </li>
+            <li>That is it. If you run into any errors, please <a href= "mailto: wpt021807@hotmail.com"> let me know. </a></li>
+        </ul>
+        
+        <p>I made this website as my final project for my Latin class in GHP 61. Shout out to Mr. Yeats at GHP and Mr. Allen and Ms. Leonard at Midtown! We were trying to write epigrams one day and I was shocked at how hard getting the words into meter was so I figured it would be helpful to make a website to do just that. And here we are.</p>
+        
+        <p>This is version 1.0.1. If you have any issues or suggestions, do please <a href= "mailto: wpt021807@hotmail.com"> reach out.</a> I hope this website was helpful!</p>
+
+    </div>
+
+    <script>
+        function validateInput(input) {
+            // Example validation: input should not be empty and should be less than 100 characters
+            if (input.trim() === "" || input.length > 100) {
+                alert("Invalid input");
+                return false;
+            }
+            return true;
+        }
+
+        async function sendInput(event) {
+            //event.preventDefault();
+            const input = document.getElementById('userInput').value;
+            const dropdownValue = document.getElementById('met').value;
+                        
+            if (!validateInput(input)) {
+                return;
+            }
+            try {
+                const response = await fetch('/processInput', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json; charset=UTF-8'
+                    },
+                    body: JSON.stringify({ input, dropdownValue })
+                });
+                if (!response.ok) {
+                    // Handle HTTP errors
+                    const errorText = await response.text();
+                    document.getElementById('output').innerText = "Error: " + errorText;
+                } else {
+                    // Handle success
+                    const output = await response.text();
+                    document.getElementById('output').innerText = output;
+                }
+            } catch (error) {
+                document.getElementById('output').innerText = "Network error: " + error.message;
+            }
+        }
+        if (document.getElementById('submitButton')) {
+            document.getElementById('submitButton').addEventListener('click', sendInput);
+        }
+        // Closing line
+    </script>
+</body>
+</html>
